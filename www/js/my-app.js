@@ -14,6 +14,15 @@ var mainView = myApp.addView('.view-main', {
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function() {
     console.log("Device is ready!");
+
+    //get tasks from local localStorage
+    getTasks();
+});
+
+$$(document).on('click', '.deleteTask', function () {
+  var id = $$(this).attr('id');
+
+  deleteTask(id);
 });
 
 $$('#task-form').on('submit', function(e) {
@@ -27,7 +36,32 @@ $$('#task-form').on('submit', function(e) {
   window.location.href = 'index.html';
 });
 
-
+//show the stored tasks
+function getTasks() {
+  if (localStorage.getItem('tasks') !== null) {
+      var tasks = JSON.parse(localStorage.getItem('tasks'));
+      for (var i = 0; i < tasks.length; i++) {
+        $$('.taskList').append(`
+          <li class="accordion-item">
+            <a href="#" class="item-content item-link">
+              <div class="item-inner">
+                <div class="item-title">${tasks[i].name}</div>
+              </div>
+            </a>
+            <div class="accordion-item-content">
+              <div class="content-block">
+                <p>${tasks[i].body}</p>
+                <p>Due: ${tasks[i].due}</p>
+                <br>
+                <a id="${tasks[i].id}" class="deleteTask button">Delete</a>
+                <br>
+              </div>
+            </div>
+          </li>
+          `);
+      }
+  }
+}
 
 function addTask(name, body, due) {
   //store task in local storage
@@ -45,6 +79,18 @@ function addTask(name, body, due) {
     tasks.push({id:id, name:name, body:body, due:due});
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }
+}
+
+function deleteTask(id) {
+  var tasks = JSON.parse(localStorage.getItem('tasks'));
+  for (var i = 0; i < tasks.length; i++) {
+    if (tasks[i].id === id) {
+      tasks.splice(i, 1); //remove task from array
+    }
+  }
+
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  window.location.href = 'index.html';
 }
 
 //code snippet taken from stackoverflow
