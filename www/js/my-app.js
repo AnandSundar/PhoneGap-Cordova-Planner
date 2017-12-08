@@ -16,28 +16,45 @@ $$(document).on('deviceready', function() {
     console.log("Device is ready!");
 });
 
+$$('#task-form').on('submit', function(e) {
+  e.preventDefault();
 
-// Now we need to run the code that will be executed only for About page.
+  var name = $$('#name').val();
+  var body = $$('#body').val();
+  var due = $$('#due').val();
 
-// Option 1. Using page callback for page (for "about" page in this case) (recommended way):
-myApp.onPageInit('about', function (page) {
-    // Do something here for "about" page
+  addTask(name, body, due);
+  window.location.href = 'index.html';
+});
 
-})
 
-// Option 2. Using one 'pageInit' event handler for all pages:
-$$(document).on('pageInit', function (e) {
-    // Get page data from event data
-    var page = e.detail.page;
 
-    if (page.name === 'about') {
-        // Following code will be executed for page with data-page attribute equal to "about"
-        myApp.alert('Here comes About page');
-    }
-})
+function addTask(name, body, due) {
+  //store task in local storage
+  if(localStorage.getItem('tasks') === null){
+    //create a new task
+    var tasks = [];
+    var id = guid();
+    tasks.push({id:id, name:name, body:body, due:due});
+    localStorage.setItem('tasks', JSON.stringify(tasks));
 
-// Option 2. Using live 'pageInit' event handlers for each page
-$$(document).on('pageInit', '.page[data-page="about"]', function (e) {
-    // Following code will be executed for page with data-page attribute equal to "about"
-    myApp.alert('Here comes About page');
-})
+  }else{
+    //fetch the old task and add the new task to it
+    var tasks = JSON.parse(localStorage.getItem('tasks')); //old tasks
+    var id = guid();
+    tasks.push({id:id, name:name, body:body, due:due});
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }
+}
+
+//code snippet taken from stackoverflow
+function guid() {
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+function s4() {
+  return Math.floor((1 + Math.random()) * 0x10000)
+    .toString(16)
+    .substring(1);
+}
